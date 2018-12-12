@@ -2,6 +2,7 @@ package com.example.marci.mojserwis;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.media.MediaRecorder;
 import android.os.Environment;
 import android.util.Log;
@@ -12,11 +13,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class CallReceiver extends PhonecallReceiver {
-    private static final String LOG_TAG = "AudioRecordTest";
     private static String mFileName = null;
-    private Boolean isRecording = false;
-
-    private MediaRecorder mRecorder;
+    private static Boolean isRecording = false;
+    private static String TAG = "CallReceiver";
+    private static MediaRecorder mRecorder = null;
 
     @Override
     protected void onIncomingCallReceived(Context ctx, String number, Date start) {
@@ -30,55 +30,39 @@ public class CallReceiver extends PhonecallReceiver {
 
     @Override
     protected void onIncomingCallEnded(Context ctx, String number, Date start, Date end) {
-        Log.d("Ingcoming call ended","x");
-        //stopRecording();
-        mRecorder.stop();
+        Log.d(TAG, "Ingcoming call ended");
+        Log.d(TAG, "Trying: "+String.valueOf(isRecording) + String.valueOf(mRecorder != null));
+        stopRecording();
+        //mRecorder.stop();
         //mRecorder.release();
     }
 
     @Override
     protected void onOutgoingCallStarted(Context ctx, String number, Date start) {
-        Toast.makeText(ctx, "Starting Recording", Toast.LENGTH_LONG).show();
-        mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
-        mFileName += "/audiorecordtest" + Calendar.getInstance().getTime().toString() + ".3gp";
-
-        initRecorder();
-
-        try {
-            mRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mRecorder.start();
+//        Toast.makeText(ctx, "Starting Recording", Toast.LENGTH_LONG).show();
+//        mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+//        mFileName += "/audiorecordtest" + Calendar.getInstance().getTime().toString() + ".3gp";
+//
+//        initRecorder();
+//
+//        try {
+//            mRecorder.prepare();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        mRecorder.start();
 
     }
 
     @Override
     protected void onOutgoingCallEnded(Context ctx, String number, Date start, Date end) {
-        mRecorder.stop();
-        mRecorder.release();
+//        mRecorder.stop();
+//        mRecorder.release();
     }
 
     @Override
     protected void onMissedCall(Context ctx, String number, Date start) {
 
-    }
-
-    private void startRecording(Context ctx) {
-        Log.d("Staring","Recording");
-
-        Toast.makeText(ctx, "Starting Recording", Toast.LENGTH_LONG).show();
-        mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
-        mFileName += "/audiorecordtest" + Calendar.getInstance().getTime().toString() + ".3gp";
-
-        initRecorder();
-        try {
-            mRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mRecorder.start();
-        isRecording = true;
     }
 
     private void initRecorder() {
@@ -89,19 +73,46 @@ public class CallReceiver extends PhonecallReceiver {
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
     }
 
+    private void startRecording(Context ctx) {
+        //Log.d(TAG, "Staring Recording");
+        if (isRecording) {
+            try {
+                mRecorder.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mRecorder.release();
+        } else {
+            mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+            mFileName += "/audiorecordtest" + Calendar.getInstance().getTime().toString() + ".3gp";
+
+            initRecorder();
+            try {
+                mRecorder.prepare();
+            } catch (IOException e) {
+                Log.d(TAG,"Error prepare()");
+                //e.printStackTrace();
+            }
+            mRecorder.start();
+            isRecording = true;
+            Log.d(TAG, "Starting isRecording:" + String.valueOf(isRecording));
+        }
+
+    }
+
     private void stopRecording() {
-        Log.d("Stoping","");
+        Log.d(TAG, "Stoping");
         try {
-            Log.d("Trying","");
+            Log.d(TAG, "Trying"+String.valueOf(isRecording) + String.valueOf(mRecorder != null));
             if (mRecorder != null && isRecording) {
                 mRecorder.stop();
                 mRecorder.release();
                 mRecorder = null;
                 isRecording = false;
-                Log.d("Stoping","Recorder");
+                Log.d("Stoping", "Recorder");
             }
         } catch (Exception e) {
-            Log.d("Catching","");
+            Log.d(TAG, "Catching");
             mRecorder.stop();
             mRecorder.release();
             e.printStackTrace();
