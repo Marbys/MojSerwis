@@ -2,12 +2,15 @@ package com.example.marci.mojserwis;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,7 +35,7 @@ public class CallReceiver extends PhonecallReceiver {
     protected void onIncomingCallEnded(Context ctx, String number, Date start, Date end) {
         Log.d(TAG, "Ingcoming call ended");
         Log.d(TAG, "Trying: "+String.valueOf(isRecording) + String.valueOf(mRecorder != null));
-        stopRecording();
+        stopRecording(ctx);
         //mRecorder.stop();
         //mRecorder.release();
     }
@@ -83,8 +86,11 @@ public class CallReceiver extends PhonecallReceiver {
             }
             mRecorder.release();
         } else {
-            mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
-            mFileName += "/audiorecordtest" + Calendar.getInstance().getTime().toString() + ".3gp";
+            //mFileName = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+            mFileName = Environment.getExternalStorageDirectory() + java.io.File.separator +"MyRecord";
+            mFileName += "/audiorecordtest" + "lala" + ".3gp";
+
+            //Calendar.getInstance().getTime().toString()
 
             initRecorder();
             try {
@@ -95,12 +101,11 @@ public class CallReceiver extends PhonecallReceiver {
             }
             mRecorder.start();
             isRecording = true;
-            Log.d(TAG, "Starting isRecording:" + String.valueOf(isRecording));
         }
 
     }
 
-    private void stopRecording() {
+    private void stopRecording(Context ctx) {
         Log.d(TAG, "Stoping");
         try {
             Log.d(TAG, "Trying"+String.valueOf(isRecording) + String.valueOf(mRecorder != null));
@@ -117,5 +122,12 @@ public class CallReceiver extends PhonecallReceiver {
             mRecorder.release();
             e.printStackTrace();
         }
+        refreshSystemMediaScanDataBase(ctx,mFileName);
+    }
+    public static void refreshSystemMediaScanDataBase(Context context, String docPath){
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(new File(docPath));
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
     }
 }

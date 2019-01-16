@@ -3,6 +3,7 @@ package com.example.marci.mojserwis;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -60,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
         }
+
+        Log.d("MainActivity",Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
+        Log.d("MainActivity",Environment.getExternalStorageDirectory() + java.io.File.separator +"Directory");
 
         startService(new Intent(this,MyService.class));
         //CallReceiver callReceiver = new CallReceiver();
